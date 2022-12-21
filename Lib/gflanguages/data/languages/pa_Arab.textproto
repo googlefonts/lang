@@ -1,12 +1,15 @@
 id: "pa_Arab"
 language: "pa"
 script: "Arab"
-name: "Punjabi (Arabic)"
+name: "Punjabi, Shahmukhi"
+autonym: "پنجابی"
 population: 163450700
 region: "PK"
 exemplar_chars {
-  base: "ُ ء آ ؤ ئ ا ب پ ت ث ٹ ج چ ح خ د ذ ڈ ر ز ڑ ژ س ش ص ض ط ظ ع غ ف ق ک گ ل م ن ں ه ھ ہ و ی ے"
-  auxiliary: "‎‏ أ ٻ ة ٺ ټ ٽ"
-  numerals: "‎ - ‑ , . % ‰ + 0 1 2 3 4 5 6 7 8 9"
-  index: "ء آ ؤ ئ ا ب پ ت ث ٹ ج چ ح خ د ذ ڈ ر ز ڑ ژ س ش ص ض ط ظ ع غ ف ق ک گ ل م ن ں ه ھ ہ و ی ے"
+  base: "آ ا ب پ ت ث ٹ ج چ ح خ د ذ ڈ ر ز ڑ س ش ص ض ط ظ ع غ ف ق ک گ ل م ن ݨ ہ و ؤ ی ئ ے ۓ ں ھ"
+  auxiliary: "ࣇ ژ ۃ ۂ ء ٔ ً ٍ ٰ ٖ ْ ٘ ؐ ؑ ؒ ؓ ؔ ؕ ـ ؜"
+  marks: "َ ِ ُ ّ "
+  punctuation: "‌ ، ؍ ٫ ٬ – — ؛ : ؟ . ۔ ٭ ( ) [ ] ‘ ’ “ ” « »"
+  numerals: "؍ ؅؀ ٫ ٬ ‎- ‑ , . % ٪ ‰ ؉ ؊ + 0۰ 1۱ 2۲ 3۳ 4۴ 5۵ 6۶ 7۷ 8۸ 9۹"
+  index: "آ ا ب پ ت ٹ ث ج چ ح خ د ڈ ذ ر ڑ ز ژ س ش ص ض ط ظ ع غ ف ق ک گ ل م ن و ہ ی"
 }
