@@ -54,6 +54,9 @@ SKIP_EXEMPLARS = {
     "ja_Jpan": "Contains multiple scripts",
     "aii_Cyrl": "Does indeed use Latin glyphs while writing Cyrillic",
     "sel_Cyrl": "Does indeed use Latin glyphs while writing Cyrillic",
+    "ykg_Cyrl": "Does indeed use Latin glyphs (w) while writing Cyrillic",
+    "ady_Cyrl": "Does indeed use Latin glyphs (w) while writing Cyrillic",
+    "sla_Latn": "Does indeed use Cyrillic glyphs (ь) when written in Latin",
 }
 
 @pytest.mark.parametrize("lang_code", LANGUAGES)
