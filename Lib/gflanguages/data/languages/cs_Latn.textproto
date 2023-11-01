@@ -14,6 +14,9 @@ exemplar_chars {
   punctuation: "- – , ; : ! ? . … ‘ ‚ “ „ ( ) [ ] @ * / &"
   index: "A B C Č D E F G H {CH} I J K L M N O P Q R Ř S Š T U V W X Y Z Ž"
 }
+unencoded_glyphs {
+  glyphs: "caroncomb.alt"
+}
 sample_text {
   masthead_full: "VvŠš"
   masthead_partial: "Ii"
