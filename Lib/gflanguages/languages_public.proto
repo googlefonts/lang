@@ -32,10 +32,11 @@ message LanguageProto {
   optional int32 population = 7;
   repeated string region = 8;
   optional ExemplarCharsProto exemplar_chars = 9;
-  optional SampleTextProto sample_text = 10;
-  optional bool historical = 11;
-  repeated string source = 12;
-  optional string note = 13;
+  optional UnencodedGlyphsProto unencoded_glyphs = 10;
+  optional SampleTextProto sample_text = 11;
+  optional bool historical = 12;
+  repeated string source = 13;
+  optional string note = 14;
 
   // Next = 12;
 }
@@ -50,6 +51,11 @@ message ExemplarCharsProto {
   optional string index = 6;
 
   // Next = 7;
+}
+
+// Space-separated lists of unencoded glyphs used in a given language
+message UnencodedGlyphsProto {
+  optional string glyphs = 1;
 }
 
 message SampleTextProto {

@@ -189,29 +189,36 @@ _LANGUAGEPROTO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='sample_text', full_name='google.languages_public.LanguageProto.sample_text', index=9,
+      name='unencoded_glyphs', full_name='google.languages_public.LanguageProto.unencoded_glyphs', index=9,
       number=10, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='historical', full_name='google.languages_public.LanguageProto.historical', index=10,
-      number=11, type=8, cpp_type=7, label=1,
+      name='sample_text', full_name='google.languages_public.LanguageProto.sample_text', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='historical', full_name='google.languages_public.LanguageProto.historical', index=11,
+      number=12, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='source', full_name='google.languages_public.LanguageProto.source', index=11,
-      number=12, type=9, cpp_type=9, label=3,
+      name='source', full_name='google.languages_public.LanguageProto.source', index=12,
+      number=13, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='note', full_name='google.languages_public.LanguageProto.note', index=12,
-      number=13, type=9, cpp_type=9, label=1,
+      name='note', full_name='google.languages_public.LanguageProto.note', index=13,
+      number=14, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -279,6 +286,38 @@ _EXEMPLARCHARSPROTO = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='index', full_name='google.languages_public.ExemplarCharsProto.index', index=5,
       number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=512,
+  serialized_end=634,
+)
+
+
+_UNENCODEDGLYPHSPROTO = _descriptor.Descriptor(
+  name='UnencodedGlyphsProto',
+  full_name='google.languages_public.UnencodedGlyphsProto',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='glyphs', full_name='google.languages_public.UnencodedGlyphsProto.base', index=0,
+      number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -416,11 +455,13 @@ _SAMPLETEXTPROTO = _descriptor.Descriptor(
 )
 
 _LANGUAGEPROTO.fields_by_name['exemplar_chars'].message_type = _EXEMPLARCHARSPROTO
+_LANGUAGEPROTO.fields_by_name['unencoded_glyphs'].message_type = _UNENCODEDGLYPHSPROTO
 _LANGUAGEPROTO.fields_by_name['sample_text'].message_type = _SAMPLETEXTPROTO
 DESCRIPTOR.message_types_by_name['RegionProto'] = _REGIONPROTO
 DESCRIPTOR.message_types_by_name['ScriptProto'] = _SCRIPTPROTO
 DESCRIPTOR.message_types_by_name['LanguageProto'] = _LANGUAGEPROTO
 DESCRIPTOR.message_types_by_name['ExemplarCharsProto'] = _EXEMPLARCHARSPROTO
+DESCRIPTOR.message_types_by_name['UnencodedGlyphsProto'] = _UNENCODEDGLYPHSPROTO
 DESCRIPTOR.message_types_by_name['SampleTextProto'] = _SAMPLETEXTPROTO
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -451,6 +492,13 @@ ExemplarCharsProto = _reflection.GeneratedProtocolMessageType('ExemplarCharsProt
   # @@protoc_insertion_point(class_scope:google.languages_public.ExemplarCharsProto)
   })
 _sym_db.RegisterMessage(ExemplarCharsProto)
+
+UnencodedGlyphsProto = _reflection.GeneratedProtocolMessageType('UnencodedGlyphsProto', (_message.Message,), {
+  'DESCRIPTOR' : _UNENCODEDGLYPHSPROTO,
+  '__module__' : 'languages_public_pb2'
+  # @@protoc_insertion_point(class_scope:google.languages_public.ExemplarCharsProto)
+  })
+_sym_db.RegisterMessage(UnencodedGlyphsProto)
 
 SampleTextProto = _reflection.GeneratedProtocolMessageType('SampleTextProto', (_message.Message,), {
   'DESCRIPTOR' : _SAMPLETEXTPROTO,
