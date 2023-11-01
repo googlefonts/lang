@@ -316,7 +316,7 @@ _UNENCODEDGLYPHSPROTO = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='glyphs', full_name='google.languages_public.UnencodedGlyphsProto.base', index=0,
+      name='glyphs', full_name='google.languages_public.UnencodedGlyphsProto.glyphs', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
