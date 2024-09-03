@@ -5,15 +5,17 @@ include!(concat!(env!("OUT_DIR"), "/data.rs"));
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn regions() {
-    //     assert!((*REGIONS).contains_key("BG"));
-    // }
+    #[test]
+    fn regions() {
+        assert!((*REGIONS).contains_key("BG"));
+        assert_eq!(REGIONS.get("BG").unwrap().name.as_deref(), Some("Bulgaria"));
+    }
 
-    // #[test]
-    // fn scripts() {
-    //     assert!((*SCRIPTS).contains_key("Arab"));
-    // }
+    #[test]
+    fn scripts() {
+        assert!((*SCRIPTS).contains_key("Arab"));
+        assert_eq!(SCRIPTS.get("Arab").unwrap().name.as_deref(), Some("Arabic"));
+    }
 
     #[test]
     fn languages() {
