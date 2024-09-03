@@ -72,12 +72,13 @@ fn serialize_a_structure(proto_name: &str, pathglob: &str, output_variable: &str
     let variable: TokenStream = output_variable.parse().unwrap();
     // We can't fill the BTreeMap in one go, because a massive function
     // definition (>100k) will cause a stack overflow. So we split it into
-    // chunks of 400, a reasonable size, write each chunk out as a separate
-    // function, and call them all in the main lazylock function.
+    // chunks of 100 (a reasonable size/compilation time tradeoff) write
+    // each chunk out as a separate function, and call them all in the main
+    // lazylock function.
     let (definitions, calls): (TokenStream, TokenStream) = files
         .into_iter()
         .map(|file| serialize_file(file, &proto))
-        .chunks(400)
+        .chunks(100)
         .into_iter()
         .enumerate()
         .map(|(index, tokens)| {
