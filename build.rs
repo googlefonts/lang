@@ -1,9 +1,9 @@
+use itertools::Itertools;
 use proc_macro2::TokenStream;
 use protobuf::reflect::{FieldDescriptor, ReflectValueRef};
-use quote::{quote, format_ident};
+use quote::{format_ident, quote};
 use std::io::{BufWriter, Write};
 use std::{env, fs::File, path::Path};
-use itertools::Itertools;
 
 fn main() {
     let mut config = prost_build::Config::new();
@@ -58,16 +58,19 @@ fn main() {
         .expect("Could not write to file");
 }
 
-
-fn serialize_a_structure(proto_name: &str, pathglob: &str, output_variable: &str, descriptor: &protobuf::reflect::FileDescriptor) -> TokenStream {
+fn serialize_a_structure(
+    proto_name: &str,
+    pathglob: &str,
+    output_variable: &str,
+    descriptor: &protobuf::reflect::FileDescriptor,
+) -> TokenStream {
     let proto = descriptor
         .message_by_full_name(proto_name)
         .unwrap_or_else(|| panic!("No {} message", proto_name));
-    let files: Vec<std::path::PathBuf> =
-        glob::glob(pathglob)
-            .expect("Failed to read glob pattern")
-            .flatten()
-            .collect();
+    let files: Vec<std::path::PathBuf> = glob::glob(pathglob)
+        .expect("Failed to read glob pattern")
+        .flatten()
+        .collect();
     let name: TokenStream = proto.name().parse().unwrap();
     let variable: TokenStream = output_variable.parse().unwrap();
     // We can't fill the BTreeMap in one go, because a massive function
@@ -83,15 +86,17 @@ fn serialize_a_structure(proto_name: &str, pathglob: &str, output_variable: &str
         .enumerate()
         .map(|(index, tokens)| {
             let fn_name = format_ident!("fill_{}_{}", proto.name(), index);
-            (quote! {
-                #[allow(non_snake_case)]
-                fn #fn_name(data: &mut BTreeMap<&str, Box<#name>>) {
-                    #(#tokens)*
-                }
-            },
-            quote!{
-                #fn_name(&mut data);
-            })
+            (
+                quote! {
+                    #[allow(non_snake_case)]
+                    fn #fn_name(data: &mut BTreeMap<&str, Box<#name>>) {
+                        #(#tokens)*
+                    }
+                },
+                quote! {
+                    #fn_name(&mut data);
+                },
+            )
         })
         .collect();
     let docmsg = format!("A map of all the {} objects", name);
