@@ -1,0 +1,20 @@
+[package]
+name = "lang"
+version = "0.6.3"
+edition = "2021"
+
+[dependencies]
+bytes = "1.7.1"
+prost = "0.13.2"
+
+[build-dependencies]
+prost-build = "0.13.2"
+protobuf-support = { git = "https://github.com/cmyr/rust-protobuf", branch="parse-unicode-strings" }
+protobuf ={ git = "https://github.com/cmyr/rust-protobuf", branch="parse-unicode-strings" }
+protobuf-parse = { git = "https://github.com/cmyr/rust-protobuf", branch="parse-unicode-strings" }
+glob = "*" # This is a joke.
+prettyplease = "0.2.22"
+quote = "1.0.37"
+proc-macro2="1.0.86"
+syn = "2.0.77"
+itertools = "0.13.0"
