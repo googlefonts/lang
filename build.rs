@@ -1,22 +1,13 @@
-use itertools::Itertools;
 use proc_macro2::TokenStream;
 use protobuf::reflect::{FieldDescriptor, ReflectValueRef};
-use quote::{format_ident, quote};
+use quote::quote;
+use serde_json::Map;
 use std::io::{BufWriter, Write};
 use std::{env, fs::File, path::Path};
 
 fn main() {
-    let mut config = prost_build::Config::new();
-    config.compile_well_known_types();
-    config.boxed(".google.languages_public.LanguageProto.sample_text");
-    config.boxed(".google.languages_public.LanguageProto.exemplar_chars");
-    config
-        .compile_protos(
-            &["Lib/gflanguages/languages_public.proto"],
-            &["Lib/gflanguages/"],
-        )
-        .expect("Could not compile languages_public.proto");
-
+    // First we load up the descriptor using the protobuf crate
+    // so that we can do reflection on it.
     let descriptors = protobuf_parse::Parser::new()
         .pure()
         .include(".")
@@ -26,6 +17,28 @@ fn main() {
     let protofile = descriptors.file.first().expect("No file in descriptor");
     let descriptor = protobuf::reflect::FileDescriptor::new_dynamic(protofile.clone(), &[])
         .expect("Could not create descriptor");
+
+    // Now we use the prost crate to compile them, so that we can
+    // generate Rust structs.
+    let mut config = prost_build::Config::new();
+    // config.boxed(".google.languages_public.LanguageProto.sample_text");
+    // config.boxed(".google.languages_public.LanguageProto.exemplar_chars");
+
+    // The reflection can tell us what messages we have, so we can configure
+    // them to be deserializable with serde
+    for message in descriptor.messages() {
+        config.type_attribute(
+            message.full_name(),
+            "#[derive(serde::Serialize, serde::Deserialize)]",
+        );
+    }
+    // Let's make our structs; this produces google.languages_public.rs
+    config
+        .compile_protos(
+            &["Lib/gflanguages/languages_public.proto"],
+            &["Lib/gflanguages/"],
+        )
+        .expect("Could not compile languages_public.proto");
 
     let path = Path::new(&env::var("OUT_DIR").unwrap()).join("data.rs");
     let mut file = BufWriter::new(File::create(path).unwrap());
@@ -51,6 +64,8 @@ fn main() {
         "LANGUAGES",
         &descriptor,
     ));
+    // file.write_all(output.to_string().as_bytes())
+    //     .expect("Could not write to file");
 
     let abstract_file: syn::File = syn::parse2(output).expect("Could not parse output");
     let formatted = prettyplease::unparse(&abstract_file);
@@ -73,114 +88,81 @@ fn serialize_a_structure(
         .collect();
     let name: TokenStream = proto.name().parse().unwrap();
     let variable: TokenStream = output_variable.parse().unwrap();
-    // We can't fill the BTreeMap in one go, because a massive function
-    // definition (>100k) will cause a stack overflow. So we split it into
-    // chunks of 100 (a reasonable size/compilation time tradeoff) write
-    // each chunk out as a separate function, and call them all in the main
-    // lazylock function.
-    let (definitions, calls): (TokenStream, TokenStream) = files
-        .into_iter()
-        .map(|file| serialize_file(file, &proto))
-        .chunks(100)
-        .into_iter()
-        .enumerate()
-        .map(|(index, tokens)| {
-            let fn_name = format_ident!("fill_{}_{}", proto.name(), index);
-            (
-                quote! {
-                    #[allow(non_snake_case)]
-                    fn #fn_name(data: &mut BTreeMap<&str, Box<#name>>) {
-                        #(#tokens)*
-                    }
-                },
-                quote! {
-                    #fn_name(&mut data);
-                },
-            )
-        })
-        .collect();
+    let mut map = Map::new();
+    for file in files.into_iter() {
+        serialize_file(file, &proto, &mut map);
+    }
+    let json_var: TokenStream = format!("__{}", output_variable).parse().unwrap();
     let docmsg = format!("A map of all the {} objects", name);
+    let json_dump = serde_json::to_string(&map).expect("Could not serialize");
     quote! {
-        #definitions
+        static #json_var: &str = #json_dump;
+
         #[doc = #docmsg]
-        pub static #variable: LazyLock<BTreeMap<&str, Box<#name>>> = LazyLock::new(|| {
-            let mut data = BTreeMap::new();
-            #calls
-            data
+        pub static #variable: LazyLock<BTreeMap<String, Box<#name>>> = LazyLock::new(|| {
+            serde_json::from_str(#json_var).expect("Could not deserialize")
         });
     }
 }
 fn serialize_file(
     path: std::path::PathBuf,
     descriptor: &protobuf::reflect::MessageDescriptor,
-) -> TokenStream {
+    value: &mut Map<String, serde_json::Value>,
+) {
     let mut message = descriptor.new_instance();
     let message_mut = message.as_mut();
     let input = std::fs::read_to_string(&path).expect("Could not read file");
     protobuf::text_format::merge_from_str(message_mut, &input)
         .unwrap_or_else(|e| panic!("Could not parse file {:?}: {:?}", path, e));
     let id = path.file_stem().unwrap().to_str().unwrap();
-    let serialized = serialize_message(message_mut);
-    quote!(
-        data.insert(#id, Box::new(#serialized));
-    )
+    value.insert(id.to_string(), serialize_message(message_mut));
 }
 
-fn serialize_message(message: &dyn protobuf::MessageDyn) -> TokenStream {
+fn serialize_message(message: &dyn protobuf::MessageDyn) -> serde_json::Value {
     let descriptor = message.descriptor_dyn();
-    let descriptor_name: TokenStream = descriptor.name().parse().unwrap();
-    let fields = descriptor.fields().map(|field| {
+    // let descriptor_name: TokenStream = descriptor.name().parse().unwrap();
+    let mut output = Map::new();
+    for field in descriptor.fields() {
         let field_name: TokenStream = field.name().parse().unwrap();
         let field_contents = serialize_field(&field, message);
-        quote!(
-           #field_name: #field_contents
-        )
-    });
-    quote!(
-        #descriptor_name {
-            #(#fields),*
-        }
-    )
+        output.insert(field_name.to_string(), field_contents);
+    }
+    output.into()
 }
 
-fn serialize_field(field: &FieldDescriptor, message: &dyn protobuf::MessageDyn) -> TokenStream {
+fn serialize_field(
+    field: &FieldDescriptor,
+    message: &dyn protobuf::MessageDyn,
+) -> serde_json::Value {
     if field.is_repeated() {
-        let values = field.get_repeated(message).into_iter().map(|value| {
-            let value = serialize_field_value(field, value);
-            quote!(#value)
-        });
-        quote!(vec![#(#values),*])
+        let v: Vec<serde_json::Value> = field
+            .get_repeated(message)
+            .into_iter()
+            .map(|value| serialize_field_value(field, value))
+            .collect();
+        v.into()
     } else if field.is_required() {
         serialize_field_value(field, field.get_singular(message).unwrap())
     } else if field.has_field(message) {
         let value = serialize_field_value(field, field.get_singular(message).unwrap());
-        quote!(Some(#value))
+        value.into()
     } else {
-        quote!(None)
+        serde_json::Value::Null
     }
 }
 
-fn serialize_field_value(_field: &FieldDescriptor, value: ReflectValueRef) -> TokenStream {
+fn serialize_field_value(_field: &FieldDescriptor, value: ReflectValueRef) -> serde_json::Value {
     match value {
-        ReflectValueRef::I32(value) => quote!(#value),
-        ReflectValueRef::I64(value) => quote!(#value),
-        ReflectValueRef::U32(value) => quote!(#value),
-        ReflectValueRef::U64(value) => quote!(#value),
-        ReflectValueRef::F32(value) => quote!(#value),
-        ReflectValueRef::F64(value) => quote!(#value),
-        ReflectValueRef::Bool(value) => quote!(#value),
-        ReflectValueRef::String(value) => {
-            quote!(#value.to_string())
-        }
-        ReflectValueRef::Enum(_value, _key) => {
-            unimplemented!()
-        }
-        ReflectValueRef::Message(value) => {
-            let message = serialize_message(&*value);
-            quote!(Box::new(#message))
-        }
-        ReflectValueRef::Bytes(_value) => {
-            unimplemented!()
-        }
+        ReflectValueRef::Bool(value) => value.into(),
+        ReflectValueRef::I32(value) => value.into(),
+        ReflectValueRef::I64(value) => value.into(),
+        ReflectValueRef::U32(value) => value.into(),
+        ReflectValueRef::U64(value) => value.into(),
+        ReflectValueRef::F32(value) => value.into(),
+        ReflectValueRef::F64(value) => value.into(),
+        ReflectValueRef::String(value) => value.into(),
+        ReflectValueRef::Bytes(value) => value.into(),
+        ReflectValueRef::Enum(_value, _ix) => unimplemented!(),
+        ReflectValueRef::Message(value) => serialize_message(&*value),
     }
 }
