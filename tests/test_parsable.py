@@ -1,4 +1,4 @@
-from importlib.resources import files
+from importlib_resources import files
 import glob
 import os
 import pytest

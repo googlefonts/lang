@@ -25,8 +25,7 @@ import unicodedata
 
 from gflanguages import languages_public_pb2
 from google.protobuf import text_format
-from pkg_resources import resource_filename
-from importlib.resources import files
+from importlib_resources import files
 
 try:
     from ._version import version as __version__  # type: ignore
