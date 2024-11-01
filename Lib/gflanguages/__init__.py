@@ -35,46 +35,31 @@ except ImportError:
 DATA_DIR = resource_filename("gflanguages", "data")
 
 
-def LoadLanguages(base_dir=DATA_DIR):
+def _load_thing(thing_type, proto_class, base_dir=DATA_DIR):
     if base_dir is None:
         base_dir = DATA_DIR
 
-    languages_dir = os.path.join(base_dir, "languages")
-    langs = {}
-    for textproto_file in glob.iglob(os.path.join(languages_dir, "*.textproto")):
+    thing_dir = os.path.join(base_dir, thing_type)
+    things = {}
+    for textproto_file in glob.iglob(os.path.join(thing_dir, "*.textproto")):
         with open(textproto_file, "r", encoding="utf-8") as f:
-            language = text_format.Parse(f.read(), languages_public_pb2.LanguageProto())
-            assert language.id not in langs, f"Duplicate language id: {language.id}"
-            langs[language.id] = language
-    return langs
+            proto = proto_class()
+            thing = text_format.Parse(f.read(), proto)
+            assert thing.id not in things, f"Duplicate {thing_type} id: {thing.id}"
+            things[thing.id] = thing
+    return things
+
+
+def LoadLanguages(base_dir=DATA_DIR):
+    return _load_thing("languages", languages_public_pb2.LanguageProto, base_dir)
 
 
 def LoadScripts(base_dir=DATA_DIR):
-    if base_dir is None:
-        base_dir = DATA_DIR
-
-    scripts_dir = os.path.join(base_dir, "scripts")
-    scripts = {}
-    for textproto_file in glob.iglob(os.path.join(scripts_dir, "*.textproto")):
-        with open(textproto_file, "r", encoding="utf-8") as f:
-            script = text_format.Parse(f.read(), languages_public_pb2.ScriptProto())
-            assert script.id not in scripts, f"Duplicate script id: {script.id}"
-            scripts[script.id] = script
-    return scripts
+    return _load_thing("scripts", languages_public_pb2.ScriptProto, base_dir)
 
 
 def LoadRegions(base_dir=DATA_DIR):
-    if base_dir is None:
-        base_dir = DATA_DIR
-
-    regions_dir = os.path.join(base_dir, "regions")
-    regions = {}
-    for textproto_file in glob.iglob(os.path.join(regions_dir, "*.textproto")):
-        with open(textproto_file, "r", encoding="utf-8") as f:
-            region = text_format.Parse(f.read(), languages_public_pb2.RegionProto())
-            assert region.id not in regions, f"Duplicate region id: {region.id}"
-            regions[region.id] = region
-    return regions
+    return _load_thing("regions", languages_public_pb2.RegionProto, base_dir)
 
 
 def parse(exemplars: str):
