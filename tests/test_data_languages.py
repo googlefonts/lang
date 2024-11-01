@@ -336,3 +336,9 @@ def test_language_name_structure():
         pytest.fail(
             f'Languages names without expected structure ("LANGUAGE, MODIFIER (SCRIPT)"): {misstructured_language_names}'
         )
+
+
+@pytest.mark.parametrize("lang_code", LANGUAGES)
+def test_id_well_formed(lang_code):
+    lang = LANGUAGES[lang_code]
+    assert lang.id.startswith(lang.language + "_" + lang.script)
