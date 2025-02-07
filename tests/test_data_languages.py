@@ -280,6 +280,57 @@ def test_sample_texts_are_in_script(lang_code):
     )
 
 
+@pytest.mark.parametrize("lang_code", LANGUAGES.keys())
+def test_sample_texts_are_in_base_or_mark(lang_code):
+    if lang_code in []:
+        pytest.xfail("These languages have known issues with their sample text")
+        return
+    lang = LANGUAGES[lang_code]
+    defined_chars = set(
+        lang.exemplar_chars.base
+        + lang.exemplar_chars.marks
+        + lang.exemplar_chars.numerals
+        + lang.exemplar_chars.punctuation
+        + lang.exemplar_chars.index
+    )
+    script_name = SCRIPTS[lang.script].name
+    script_name = CLDR_SCRIPT_TO_UCD_SCRIPT.get(script_name, script_name)
+    if not lang.sample_text.ListFields():
+        pytest.skip("No sample text for language " + lang_code)
+        return
+    if not lang.exemplar_chars.ListFields():
+        pytest.skip("No exemplar_chars for language " + lang_code)
+        return
+
+    undefined_characters = []
+    for field in SampleText.fields:
+        if field.name == "note":
+            continue
+        samples = getattr(lang.sample_text, field.name)
+        samples = samples.replace("\n", "")
+        samples = samples.replace(".", "")
+        samples = samples.replace(",", "")
+        samples = samples.replace("’", "")
+        samples = samples.replace("'", "")
+        samples = samples.replace(":", "")
+        samples = samples.replace(";", "")
+        samples = samples.replace("-", "")
+        samples = samples.replace("–", "")
+        samples = samples.replace('"', "")
+        samples = samples.replace("(", "")
+        samples = samples.replace(")", "")
+
+        for char in samples:
+            if char not in defined_chars and char not in undefined_characters:
+                undefined_characters.append(char)
+
+    undefined_characters = sorted(undefined_characters)
+    assert not undefined_characters, (
+        f"{lang_code} sample text contained {len(undefined_characters)} characters not defined in exemplar_chars"
+        f": {', '.join([f'{u} (0x{ord(u):04X})' for u in undefined_characters])}"
+    )
+
+
 def test_exemplar_parser():
     bases = "a A ā Ā {a̍} {A̍} {kl}"
     parsed_bases = parse(bases)
