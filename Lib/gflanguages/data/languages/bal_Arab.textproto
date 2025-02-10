@@ -10,6 +10,6 @@ region: "IR"
 region: "OM"
 region: "PK"
 exemplar_chars {
-  base: "ا آ ہ ب چ د ڈ ࢩ ے گ ھ ی ج ک ل م ن ۏ پ ر س ش ت ٹ و ی ز ژ ئ ؤ ء"
+  base: "ا آ ہ ب چ د ڈ ࢩ ے گ ھ ی ج ک ل م ن ۏ پ ر س ش ت ٹ و ز ژ ئ ؤ ء"
   marks: "َ◌ ِ◌ ُ◌ ّ◌ ٚ◌"
 }
