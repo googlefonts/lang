@@ -8,7 +8,7 @@ region: "CN"
 region: "IR"
 region: "MN"
 exemplar_chars {
-  base: "ا ٴا ب پ ت ج چ ح د ر ز س ش ع ف ق ك گ ڭ ل م ن ە ھ و ٴو ۇ ٴۇ ۋ ۆ ى ٴى ي "
+  base: "ا ٴا ب پ ت ج چ ح د ر ز س ش ع ف ق ك گ ڭ ل م ن ە ھ و ٴو ۇ ٴۇ ۋ ۆ ى ٴى ي ء"
 }
 sample_text {
   masthead_full: "بارل"
