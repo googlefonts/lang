@@ -19,6 +19,7 @@
 Helper API for interaction with languages/regions/scripts
 data on the Google Fonts collection.
 """
+
 import glob
 import os
 import unicodedata
