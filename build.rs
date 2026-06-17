@@ -150,7 +150,7 @@ fn serialize_field(
         serialize_field_value(field, field.get_singular(message).unwrap())
     } else if field.has_field(message) {
         let value = serialize_field_value(field, field.get_singular(message).unwrap());
-        value.into()
+        value
     } else {
         serde_json::Value::Null
     }
