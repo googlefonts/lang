@@ -12,6 +12,8 @@ jobs:
   rust-test:
     name: Rust Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,6 +29,8 @@ jobs:
   rust-formatting:
     name: Lint for formatting
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +46,8 @@ jobs:
 
   rust-lint:
     name: Lint for warnings
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +63,8 @@ jobs:
   python-test:
     name: Python Tests
     runs-on: ${{ matrix.platform }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -80,6 +88,8 @@ jobs:
 
   python-black:
     name: Python Black
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,6 +147,8 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'refs/tags/v')
     needs: create-github-release
+    permissions:
+      contents: read
     name: Publish Rust crate
     steps:
         - uses: actions/checkout@v3
@@ -208,6 +220,8 @@ jobs:
       - publish-python
       - publish-rust
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout google/fonts
         uses: actions/checkout@v3
