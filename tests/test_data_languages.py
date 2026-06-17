@@ -30,7 +30,6 @@ from gflanguages import (
 import pytest
 import youseedee
 
-
 LANGUAGES = LoadLanguages()
 SCRIPTS = LoadScripts()
 REGIONS = LoadRegions()
@@ -140,7 +139,9 @@ def test_exemplars_bracketed_sequences(lang_code, exemplar_name):
     exemplar = getattr(lang.exemplar_chars, exemplar_name).split()
     for chars in exemplar:
         if len(chars) > 1:
-            assert chars.startswith("{") and chars.endswith("}"), f"'{chars}' in {lang_code} {exemplar_name} is not bracketed"
+            assert chars.startswith("{") and chars.endswith(
+                "}"
+            ), f"'{chars}' in {lang_code} {exemplar_name} is not bracketed"
             assert len(chars[1:-1]) > 1
 
 
@@ -153,8 +154,8 @@ def test_languages_exemplars_marks_in_base(lang_code):
         if len(chars) > 1:
             chars = chars.lstrip("{").rstrip("}")
         if unicodedata.category(chars[0]) == "Mn":
-            problems.append("\u25CC" + chars)
-        if "\u25CC" in chars:
+            problems.append("\u25cc" + chars)
+        if "\u25cc" in chars:
             problems.append(chars)
     assert not problems, f"Found marks in base: {problems}"
 

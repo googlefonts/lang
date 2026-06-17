@@ -17,9 +17,7 @@ textproto_files = [
 @pytest.mark.parametrize("lang_code", textproto_files)
 def test_parsable(lang_code):
     f = languages_dir.joinpath(lang_code)
-    msg = text_format.Parse(
-        f.read_text(encoding="utf-8"), LanguageProto()
-    )
+    msg = text_format.Parse(f.read_text(encoding="utf-8"), LanguageProto())
     assert msg.id
     assert msg.language
     assert msg.script
