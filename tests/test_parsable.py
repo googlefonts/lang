@@ -1,8 +1,6 @@
-import glob
-import os
 import pytest
 import sys
-from gflanguages import languages_public_pb2
+from gflanguages import LanguageProto
 from google.protobuf import text_format
 
 if sys.version_info < (3, 10):
@@ -20,7 +18,7 @@ textproto_files = [
 def test_parsable(lang_code):
     f = languages_dir.joinpath(lang_code)
     msg = text_format.Parse(
-        f.read_text(encoding="utf-8"), languages_public_pb2.LanguageProto()
+        f.read_text(encoding="utf-8"), LanguageProto()
     )
     assert msg.id
     assert msg.language

@@ -20,7 +20,9 @@ import unicodedata
 
 from gflanguages import (
     LoadLanguages,
-    languages_public_pb2,
+    LanguageProto,
+    SampleTextProto,
+    ExemplarCharsProto,
     LoadScripts,
     LoadRegions,
     parse,
@@ -157,8 +159,8 @@ def test_languages_exemplars_marks_in_base(lang_code):
     assert not problems, f"Found marks in base: {problems}"
 
 
-SampleText = languages_public_pb2.SampleTextProto().DESCRIPTOR
-ExemplarChars = languages_public_pb2.ExemplarCharsProto().DESCRIPTOR
+SampleText = SampleTextProto().DESCRIPTOR
+ExemplarChars = ExemplarCharsProto().DESCRIPTOR
 
 
 @pytest.mark.parametrize("lang_code", LANGUAGES.keys())
