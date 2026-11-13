@@ -8,6 +8,8 @@ on:
 env:
   PROTOBUF_VERSION: "33.0"
 
+permissions: {}
+
 jobs:
   rust-test:
     name: Rust Tests
@@ -15,10 +17,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         name: Set up Rust for caching
       - name: Build
         run: cargo build
@@ -33,10 +36,11 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         name: Set up Rust for caching
         with:
           components: rustfmt
@@ -50,10 +54,11 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         name: Set up Rust for caching
         with:
           components: clippy
@@ -71,12 +76,13 @@ jobs:
         python-version: ["3.10", "3.12", "3.13", "3.14"]
         platform: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install packages
@@ -92,11 +98,12 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Set up Python 3.14
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: 3.14
       - name: Install packages
@@ -122,8 +129,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
       - name: Get release notes
         id: release_notes
@@ -134,7 +142,7 @@ jobs:
           # https://github.com/actions/checkout/issues/290
           git fetch --tags --force
           TAG_NAME=${GITHUB_REF/refs\/tags\//}
-          echo "$(git tag -l --format='%(contents)' $TAG_NAME)" > "${{ runner.temp }}/CHANGELOG.md"
+          echo "$(git tag -l --format='%(contents)' $TAG_NAME)" > "${RUNNER_TEMP}/CHANGELOG.md"
 
       - name: Create GitHub release if needed
         id: create_release
@@ -151,10 +159,13 @@ jobs:
       contents: read
     name: Publish Rust crate
     steps:
-        - uses: actions/checkout@v3
-        - uses: dtolnay/rust-toolchain@stable
-        - run:
-            cargo publish ${{ env.CARGO_PUBLISH_ARGS }} --no-verify
+        - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+          with:
+            persist-credentials: false
+        - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        - run: |
+            # shellcheck disable=SC2086
+            cargo publish ${CARGO_PUBLISH_ARGS:-} --no-verify
           env:
               CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -166,12 +177,13 @@ jobs:
     needs:
       - create-github-release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           submodules: recursive
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.x'
 
@@ -183,7 +195,7 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: python3 -m build
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: python-package-distributions
           path: dist/
@@ -199,18 +211,40 @@ jobs:
       name: pypi
       url: https://pypi.org/p/gflanguages/
     permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
+      contents: read
+      id-token: write
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: python-package-distributions
           path: dist/
-      - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
-          # repository-url: https://test.pypi.org/legacy/ # for testing purposes
-          verify-metadata: false # twine previously didn't verify metadata when uploading
+          workload_identity_provider: 'projects/305452601764/locations/global/workloadIdentityPools/builders/providers/github'
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+      - name: Stage distributions and trigger OSS Exit Gate release
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 -m venv .exit-gate-venv
+          .exit-gate-venv/bin/python -m pip install --upgrade pip twine keyrings.google-artifactregistry-auth
+          .exit-gate-venv/bin/python -m twine upload \
+            --repository-url https://us-python.pkg.dev/oss-exit-gate-prod/gflanguages--pypi/ \
+            --non-interactive \
+            --skip-existing \
+            dist/*
+          cat <<EOF > manifest.json
+          {
+            "publish_all": true
+          }
+          EOF
+          gcloud storage cp manifest.json \
+            "gs://oss-exit-gate-prod-projects-bucket/gflanguages/pypi/manifests/manifest-${RUN_ID}-${RUN_ATTEMPT}.json"
 
   upstream-subtree-merge:
     name: >-
@@ -224,7 +258,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout google/fonts
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3 # zizmor: ignore[artipacked]
         with:
           repository: google/fonts
           token: ${{ secrets.GOOGLE_FONTS_TOKEN }}
@@ -251,17 +285,20 @@ jobs:
             main
 
       - name: Push branch to google/fonts
+        env:
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
         run: |
-          git push origin "${{ steps.branch.outputs.branch_name }}"
+          git push origin "${BRANCH_NAME}"
 
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ secrets.GOOGLE_FONTS_TOKEN }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           gh pr create \
             --repo google/fonts \
             --base main \
-            --head "${{ steps.branch.outputs.branch_name }}" \
+            --head "${BRANCH_NAME}" \
             --title "Update gflanguages to ${TAG_NAME}" \
             --body "This PR updates the \`gflanguages\` subtree with the latest release ($TAG_NAME) from [googlefonts/gflanguages](https://github.com/googlefonts/gflanguages). **Important:** When merging, use the **\"Create a merge commit\"** button, **not** \"Squash and merge\", to preserve subtree history and avoid future merge conflicts."
